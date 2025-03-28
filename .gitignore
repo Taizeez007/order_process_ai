@@ -1,0 +1,27 @@
+.env
+# Environment Variables
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=myuser
+DB_PASSWORD=mypassword
+DB_NAME=mydb
+
+SECRET_KEY=mysecretkey
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=myemail@gmail.com
+SMTP_PASSWORD=mypassword
+
+LOG_LEVEL=DEBUG# Environment Variables
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=myuser
+DB_PASSWORD=mypassword
+DB_NAME=mydb
+
+SECRET_KEY=mysecretkey
+DEBUG=True
