@@ -1,0 +1,113 @@
+from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_core.messages import HumanMessage
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.prebuilt import create_react_agent
+from langchain_openai import ChatOpenAI
+import os
+import googlemaps
+import getpass
+import json
+from langchain.tools import Tool
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables
+
+memory=MemorySaver()
+LANGSMITH_API_KEY=os.environ.get("LANGSMITH_API_KEY")
+OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY')
+TAVILY_API_KEY=os.environ.get("TAVILY_API_KEY")
+
+#GOOGLE_MAP_API_KEY=os.environ.get("GOOGLE_MAP_API_KEY")
+GOOGLE_MAP_API_KEY ="AIzaSyBn4725jMrrojRwsgXYb1G0gkWFsVhpmrk"
+gmaps=googlemaps.Client(key=GOOGLE_MAP_API_KEY)
+#define tools
+if not os.environ.get('TAVILY_API_KEY'):
+
+    os.environ['TAVILY_API_KEY']=getpass.getpass('tavily_api_key:\n')
+
+search=TavilySearchResults(max_results=2)
+import requests
+from typing import Any
+
+#routing_tool function
+def routing(start_address:str,destination_address:str) ->Any:
+    url = "https://www.google.com/maps/dir/?api=1"
+
+    route_url = "https://routes.googleapis.com/directions/v2:computeRoutes"
+
+    try:
+       response=gmaps.directions(
+       start_address,
+       destination_address,
+       mode="driving",
+       )
+
+    
+  
+       start_gcode=gmaps.geocode(start_address)
+       dest_gcode=gmaps.geocode(destination_address)
+       map_link = f"{url}&origin=[start_address]&destination=[destination_address]"
+       if response:
+            route = response[0]
+
+            leg = route["legs"][0]
+
+            distance_meters = leg["distance"]["value"]
+            total_duration = leg["duration"]["value"]
+
+        
+       return {
+           "distance":distance_meters,
+           "duration":total_duration,
+            "map":map_link
+        }
+    except requests.exceptions.RequestException as e:
+        return {"error": f"Request error: {e}"}
+    except (KeyError, IndexError) as e:
+        return {"error": f"Error parsing Google Maps API response: {e}"}
+    except Exception as e:
+        return {"error": f"An unexpected error occurred: {e}"}
+
+
+    
+routing_tool = Tool(
+    name="routing_tool",
+    func=routing,
+    description="Estimates the distance and travel time between two locations and provides a Google Maps link. Input should be two strings, representing the origin and destination addresses.  For example: 'routing_tool(origin=\"1600 Amphitheatre Parkway, Mountain View, CA\", destination=\"Empire State Building, New York, NY\")'",
+)
+
+
+#list of tools
+tools=[search,routing_tool]
+
+model=ChatOpenAI(temperature=1.0,model_name="gpt-4o-mini", openai_api_key=OPENAI_API_KEY, max_retries=2)
+recursion_limit:999
+agent_executor=create_react_agent(model,tools)
+
+dist1='5, Marina Road, Lagos Island, Lagos State, Nigeria'
+dist2="3 Nicolve Ave, Agege, Lagos, Nigeria"
+query=f"find the weather condition for the locations with the address {dist2} and {dist1}. you should find the distance and time to travel between both locations by driving."
+
+print(routing({dist1},{dist2}))
+#response=agent_executor.invoke()
+import pprint
+loop=1
+try:
+    for step in agent_executor.stream(
+        {"messages": [HumanMessage(content=query)]},
+    ):
+        if loop is True:
+            if 'agent' in step and 'message' in step['agent']:
+                pprint.pp(step['messages'])
+                loop=loop-1
+       
+      #print(f"step shown below {step}")
+      #step["messages"][-1].pretty_print
+
+except Exception as e:
+    print(f"Error during agent execution: {e}")
+"""
+model=model.bind_tools(tools)
+response=model.invoke([HumanMessage(content=query)])
+response.content
+pprint.pp(response.content)
+"""

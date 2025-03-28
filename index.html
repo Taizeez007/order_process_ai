@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Map</title>
+</head>
+<body>
+    <iframe
+        width="900"
+        height="750"
+        style="border:0"
+        loading="lazy"
+        allowfullscreen
+        referrerpolicy="no-referrer-when-downgrade"
+        src="" id="mapFrame">
+    </iframe>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const mapUrl = urlParams.get('mapUrl');
+        const iframe = document.getElementById('mapFrame');
+        iframe.src = mapUrl;
+    </script>
+</body>
+</html>
