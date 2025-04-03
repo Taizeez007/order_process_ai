@@ -82,25 +82,25 @@ search=TavilySearchResults(max_results=2)
 search_vehicles_tool = Tool(
     name="SearchVehicles",
     func=query_vehicle_database,
-    description="Searches the vehicle database for vehicles that can transport the specified goods and quantity.  Input should be goods (string) and quantity (int).  Returns a list of matching vehicle records (vehicle_id, vehicle_type)."
+    description="Searches the vehicle database for vehicles that can transport the specified goods and quantity. Input should be goods (string) and quantity (int). selects a vest fit vehicle from a list of matching vehicle records (vehicle_id, vehicle_type), where vehicle_id is a string."
 )
 
 search_drivers_tool = Tool(
     name="SearchDrivers",
     func=query_driver_database,
-    description="Searches the driver database for available drivers that can drive the specified vehicle type. Input should be vehicle_type (string). Returns a list of matching driver records (driver_id, driver_name)."
+    description="Searches the driver database for available drivers that can drive the specified vehicle type. Input should be vehicle_type (string). select a driver that best fit from a list of matching driver records (driver_id, driver_name) based on experience or time of last trip if available, where driver_id is a string."
 )
 
 add_vehicle_to_order_tool = Tool(
     name="AddVehicleToOrder",
     func=add_vehicle_to_order,
-    description="Adds the vehicle ID and type to the order data dictionary. Input should be order_data (dict), vehicle_id (int), and vehicle_type (string). Returns the updated order data dictionary."
+    description="Adds the vehicle ID and vehicle type to the order data dictionary. Input should be order_data (dict), vehicle_id (str), and vehicle_type (string). the vehicle_id and vehicle_type is a result from the tool named SearchVehicles. Returns the updated order data dictionary."
 )
 
 add_driver_to_order_tool = Tool(
     name="AddDriverToOrder",
     func=add_driver_to_order,
-    description="Adds the driver ID and name to the order data dictionary. Input should be order_data (dict), driver_id (int), and driver_name (string). Returns the updated order data dictionary."
+    description="Adds the driver ID and name to the order data dictionary. Input should be order_data (dict), driver_id (str), and driver_name (string). the driver_id and driver_name is a result from the tool named Searchdrivers. Returns the updated order data dictionary."
 )
 
 #routing_tool function
