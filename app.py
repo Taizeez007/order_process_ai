@@ -175,6 +175,7 @@ agent_executor=create_react_agent(model,tools)
 order={"order_id":"1234567",
         "order_name":"fuel",
         "good_type":"petroleum",
+        "capacity":10,
         "pickup_location":"12 shitta street,Dopemu,Agege,Lagos",
         "dropoff_location":"14 samaru road,Zaria,kaduna"}
 query=f"""
